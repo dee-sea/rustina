@@ -1,4 +1,5 @@
-extern crate local_ip;
+//extern crate local_ip;
+pub mod local_ip;
 
 use d::start;
 use std::fs::{create_dir_all, write, File};

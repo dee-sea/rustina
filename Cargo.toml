@@ -13,5 +13,6 @@ codegen-units = 1
 [dependencies]
 zip = "0.6"
 walkdir = "2"
-local-ip = { path = "../rust-local-ip" }
 d = "0.0.1"
+regex = "0.1"
+#local-ip = { path = "../rust-local-ip" }
