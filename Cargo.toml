@@ -1,0 +1,17 @@
+[package]
+name = "follina"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+zip = "0.6"
+walkdir = "2"
+local-ip = { path = "../rust-local-ip" }
+d = "0.0.1"
