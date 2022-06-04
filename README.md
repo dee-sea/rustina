@@ -4,7 +4,7 @@ Follina PoC written in rust
 Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purposes. This has been inspiered by chvancooten/follina.py and was a first attempt to code in Rust.
 
 > ⚠ DO NOT USE IN PRODUCTION
-> ⚠ DO NOT USE IF NOT EXPLICITLY AUTHORISED TO DO SO!!!
+> ⚠⚠⚠ DO NOT USE IF NOT EXPLICITLY AUTHORISED TO DO SO!!!
 
 ## Usage:
 
