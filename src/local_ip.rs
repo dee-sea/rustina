@@ -2,16 +2,30 @@ extern crate regex;
 
 use regex::Regex;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-use std::process::Command;
+use std::process::{exit, Command};
 
 pub fn get() -> Option<IpAddr> {
     let output = Command::new("ifconfig")
         .output()
         .expect("failed to execute `ifconfig`");
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
+    let opt_stdout = String::from_utf8(output.stdout);
+    let stdout = match opt_stdout {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
 
-    let re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
+    let opt_re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#);
+    let re = match opt_re {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
     for cap in re.captures_iter(&stdout) {
         if let Some(host) = cap.at(2) {
             if host != "127.0.0.1" {
@@ -34,9 +48,23 @@ pub fn get_iface_addr(iface: &str) -> Option<IpAddr> {
         .output()
         .expect("failed to execute `ifconfig`");
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
+    let opt_stdout = String::from_utf8(output.stdout);
+    let stdout = match opt_stdout {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
 
-    let re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
+    let opt_re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#);
+    let re = match opt_re {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
     for cap in re.captures_iter(&stdout) {
         if let Some(host) = cap.at(2) {
             if host != "127.0.0.1" {
@@ -59,16 +87,29 @@ pub fn get_ifaces() -> Vec<String> {
         .output()
         .expect("failed to execute `ifconfig`");
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
+    let opt_stdout = String::from_utf8(output.stdout);
+    let stdout = match opt_stdout {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
 
-    //let re = Regex::new(r#"(?m)^?(([a-z][0-9]).*).*$"#).unwrap();
-    let re = Regex::new(r#".*"#).unwrap();
+    let opt_re = Regex::new(r#".*"#);
+    let re = match opt_re {
+        Ok(value) => value,
+        Err(_) => {
+            println!("Can't read ifconfig results");
+            exit(1);
+        }
+    };
     let mut ifaces = vec!["".to_string(); 0];
     for cap in re.captures_iter(&stdout) {
         if let Some(host) = cap.at(0) {
-            if cap.at(0).unwrap() != "" {
-                ifaces.push(host.to_string());
-            }
+            ifaces.push(host.to_string());
+        } else {
+            println!("Can't retrieve interface list.")
         }
     }
 
