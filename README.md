@@ -8,26 +8,21 @@ Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purpos
 > ⚠⚠⚠ DO NOT USE IF NOT EXPLICITLY AUTHORISED TO DO SO!!!
 
 ## Usage:
+        --server=interface  # Bind server to IP address of provided interface
+                            # Default value "lo"
+        --manual=ipadr      # Manual mode : Only generate docx and html files without binding a server
+                            # Default value "127.0.0.1"
+        --port=portnumber   # Bind server to provided port
+                            # Default value "8080"
+        --binary=binarypath # Make a payload to execue binarypath on the victime computer
+                            # Default value "\\\\windows\\\\system32\\\\calc"
+                            # Binary path should not include the file extention e.g. .exe
+                            # On linux binarypath should be double excaped:
+                            # e.g. \\\\windows\\\\system32\\\\calc
+                            # On windows binarypath should be excaped:
+                            # e.g. \\windows\\system32\\calc
+        -h or --help        # print this message
 
 ```
-$ follina --help
-****************************************************************
-*                                                              *
-*                           Follina                            *
-*                                                              *
-*                Good thing we disabeled macros                *
-*                                                              *
-****************************************************************
-Usage: rustina <ip addr> <port> <binary to execute>
-        # Manual mode : Only genetrates docx and html files
-Usage: rustina
-        # Manual mode : Only genetrates docx and html files pointing to 127.0.0.1:8080 and launching calc.exe
-Usage: rustina --server
-        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080, the exploit launches calc.exe
-Usage: rustina --server <binary to execute>
-        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080
-Usage: rustina --server <network interface> <binary to execute>
-        # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080
-Usage: rustina --help
 ```
 
