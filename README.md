@@ -8,6 +8,17 @@ Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purpos
 > ⚠⚠⚠ DO NOT USE IF NOT EXPLICITLY AUTHORISED TO DO SO!!!
 
 ## Usage:
+ $ rustina -h                                                                                      
+****************************************************************
+*                                                              *
+*                           Follina                            *
+*                                                              *
+*                Good thing we disabeled macros                *
+*                                                              *
+****************************************************************
+Usage: rustina [Options]
+
+Options:
         --server=interface  # Bind server to IP address of provided interface
                             # Default value "lo"
         --manual=ipadr      # Manual mode : Only generate docx and html files without binding a server
@@ -21,8 +32,7 @@ Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purpos
                             # e.g. \\\\windows\\\\system32\\\\calc
                             # On windows binarypath should be excaped:
                             # e.g. \\windows\\system32\\calc
-        -h or --help        # print this message
-
+        -h or --help        # print this message§
 ```
 ```
 
