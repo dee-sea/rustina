@@ -3,7 +3,7 @@ name = "rustina"
 version = "0.1.0"
 authors = ["Deesea"]
 description = "A quick PoC for the Follina Vuln."
-liciense = "MIT"
+license = "MIT"
 repository = "https://github.com/dee-sea/rustina.git"
 edition = "2021"
 
