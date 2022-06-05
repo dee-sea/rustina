@@ -9,13 +9,6 @@ Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purpos
 
 ## Usage:
  $ rustina -h                                                                                      
-****************************************************************
-*                                                              *
-*                           Follina                            *
-*                                                              *
-*                Good thing we disabeled macros                *
-*                                                              *
-****************************************************************
 Usage: rustina [Options]
 
 Options:
