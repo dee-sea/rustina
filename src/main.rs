@@ -42,7 +42,13 @@ fn main() {
                 let iface = args[2].trim();
                 let ifaces_listing = ifaces_list.clone();
                 if ifaces_list.contains(&iface.to_string()) {
-                    ip = local_ip::get_iface_addr(iface).unwrap();
+                    let opt_local_ip = local_ip::get_iface_addr(iface);
+                    if opt_local_ip.is_some() {
+                        ip = local_ip::get_iface_addr(iface).unwrap();
+                    } else {
+                        println!("Interface has no IP address.");
+                        exit(1)
+                    }
                 } else {
                     println!(
                         "Network interface {} not found. Possible interfaces are:",
@@ -75,12 +81,27 @@ fn main() {
                         exit(1);
                     }
                 };
-                let portnum: i32 = args[2].trim().parse().unwrap();
-                if portnum > 0 && portnum <= 65535 {
-                    port = portnum;
-                } else {
-                    println!("Second argument is a port number.");
-                    exit(1);
+                let opt_portnum = args[2].trim().parse::<i32>();
+
+                match opt_portnum {
+                    Ok(value) => {
+                        if get_type_of(&value) == "i32" {
+                            let portnum: i32 = value;
+                            if portnum > 0 && portnum <= 65535 {
+                                port = portnum;
+                            } else {
+                                println!("Second argument must be a port number.");
+                                exit(1);
+                            }
+                        } else {
+                            println!("Second argument must be a port number.");
+                            exit(1);
+                        }
+                    }
+                    Err(_) => {
+                        println!("Second argument must be a port number.");
+                        exit(1);
+                    }
                 }
                 binary = args[3].trim();
             };
@@ -155,6 +176,10 @@ fn usage(cmd: &str) {
         "Usage: {} --help                                           # Print this message.",
         cmd
     );
+}
+
+fn get_type_of<T>(_: &T) -> &str {
+    std::any::type_name::<T>()
 }
 
 fn generate_docx(docx_name: String, payload_url: String) {
