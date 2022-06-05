@@ -8,7 +8,8 @@ Quick POC to replicate the 'Follina' Office RCE vulnerability for testing purpos
 > ⚠⚠⚠ DO NOT USE IF NOT EXPLICITLY AUTHORISED TO DO SO!!!
 
 ## Usage:
- $ rustina -h                                                                                      
+```
+$ rustina -h                                                                                      
 Usage: rustina [Options]
 
 Options:
