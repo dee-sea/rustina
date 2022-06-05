@@ -1,6 +1,10 @@
 [package]
-name = "follina"
+name = "rustina"
 version = "0.1.0"
+authors = ["Deesea"]
+description = "A quick PoC for the Follina Vuln."
+liciense = "MIT"
+repository = "https://github.com/dee-sea/rustina.git"
 edition = "2021"
 
 [profile.release]
@@ -15,4 +19,3 @@ zip = "0.6"
 walkdir = "2"
 d = "0.0.1"
 regex = "0.1"
-#local-ip = { path = "../rust-local-ip" }
