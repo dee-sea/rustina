@@ -31,8 +31,16 @@ fn main() {
         usage(&args[0]);
         exit(0);
     }
-    let docx_name = "document.docx".to_string();
-    let html_name = "exploit.html".to_string();
+    let opt_docx = parse_args::get_flag_value("docx", &vec_flag);
+    let docx_name = match opt_docx {
+        Some(value) => value,
+        None => "document.docx".to_string(),
+    };
+    let opt_html = parse_args::get_flag_value("html", &vec_flag);
+    let html_name = match opt_html {
+        Some(value) => value,
+        None => "exploit.html".to_string(),
+    };
     let opt_webroot = parse_args::get_flag_value("webroot", &vec_flag);
     let webroot_string = match opt_webroot {
         Some(value) => value,
@@ -151,6 +159,10 @@ Options:
                             # Default value \"8080\"
         --webroot=webpath   # Specify where files are generated
                             # Default value \"./www\"
+        --html=filename     # Specify the name of the html generated file
+                            # Default value \"exploit.html\"
+        --docx=filename     # Specify the name of the docx generated file
+                            # Default value \"document.docx\"
         --binary=binarypath # Make a payload to execue binarypath on the victime computer
                             # Default value \"\\\\\\\\windows\\\\\\\\system32\\\\\\\\calc\"
                             # Binary path should not include the file extention e.g. .exe

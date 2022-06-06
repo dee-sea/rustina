@@ -30,6 +30,14 @@ Options:
 
                             # Default value "./www"
 
+        --html=filename     # Specify the name of the generated html file
+
+                            # Default value "exploit.html"
+
+        --docx=filename     # Specify the name of the generated docx file
+
+                            # Default value "document.docx"
+
         --binary=binarypath # Make a payload to execue binarypath on the victime computer
 
                             # Default value "\\\\windows\\\\system32\\\\calc"
