@@ -12,13 +12,53 @@ impl Arg {
     }
 }
 
-pub fn parse_args(args: &Vec<String>) -> (Vec<Arg>, Vec<String>) {
+pub fn usage(cmd: &str) {
+    println!(
+        "Usage: {} [Options]
+
+Options:
+        --server=interface  # Bind server to IP address of provided interface
+                            # Default value \"lo\"
+        --manual=ipadr      # Manual mode : Only generate docx and html files without binding a server
+                            # Default value \"127.0.0.1\"
+        --port=portnumber   # Bind server to provided port
+                            # Default value \"8080\"
+        --webroot=webpath   # Specify where files are generated
+                            # Default value \"./www\"
+        --html=filename     # Specify the name of the html generated file
+                            # Default value \"exploit.html\"
+        --docx=filename     # Specify the name of the docx generated file
+                            # Default value \"document.docx\"
+        --binary=binarypath # Make a payload to execue binarypath on the victime computer
+                            # Default value \"\\\\\\\\windows\\\\\\\\system32\\\\\\\\calc\"
+                            # Binary path should not include the file extention e.g. .exe
+                            # On linux binarypath should be double excaped:
+                            # e.g. \\\\\\\\windows\\\\\\\\system32\\\\\\\\calc
+                            # On windows binarypath should be excaped:
+                            # e.g. \\\\windows\\\\system32\\\\calc
+        -h or --help        # print this message ", cmd);
+}
+
+pub fn parse_args(args: &Vec<String>, params: &[&str]) -> (Vec<Arg>, Vec<String>) {
     let mut flag_vec: Vec<Arg> = vec![];
     let mut arg_vec: Vec<String> = vec![];
     let mut count = 0;
     for arg in args {
         if arg.starts_with("-") {
             if arg.starts_with("--") {
+                let pos = arg.find('=');
+                let pos = match pos {
+                    Some(value) => value,
+                    None => {
+                        println!("Must be in the form --name=value");
+                        exit(1);
+                    }
+                };
+                if !params.contains(&&arg[..pos]) {
+                    println!("Unknown parameter: {}\n", arg);
+                    usage(&args[0]);
+                    exit(1);
+                }
                 if arg == "--help" {
                     flag_vec.push(Arg::new(arg[2..].to_string(), "".to_string()));
                     count += 1;

