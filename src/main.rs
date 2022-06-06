@@ -7,6 +7,7 @@ use std::fs::{create_dir_all, write, File};
 use std::io::prelude::*;
 use std::io::{Seek, Write};
 use std::iter::Iterator;
+use std::net::TcpListener;
 use std::net::{IpAddr, SocketAddr, SocketAddrV4, SocketAddrV6};
 use std::path::Path;
 use std::process::exit;
@@ -113,7 +114,16 @@ Configuration:
         };
 
         println!("\nServer starting... Please, visit http://{0}:{1}/document.docx to download the document.", ip, port);
-        start(&socket, "./www");
+        let is_socket_free = test_socket(&socket);
+        match is_socket_free {
+            Ok(_) => {
+                start(&socket, "./www");
+            }
+            Err(value) => {
+                println!("{}", value);
+                exit(1)
+            }
+        }
     } else {
         println!(
             "\nNo server started. Please copy ./www/exploit.html to the webserver at {} on port {}",
@@ -149,6 +159,19 @@ fn generate_docx(docx_name: String, payload_url: String) {
 
     let _ = write(relsfile, tpl(payload_url));
     let _ = create_docx(&filename);
+}
+
+fn test_socket(socket: &SocketAddr) -> Result<(), String> {
+    let listener = TcpListener::bind(socket);
+    let _listener = match listener {
+        Ok(_) => {
+            return Ok(());
+        }
+        Err(errmsg) => {
+            let message = format!("Cannot bind to address {}: {}", socket, errmsg);
+            return Err(message);
+        }
+    };
 }
 
 fn generate_html(html_name: String, binary: &str) {
