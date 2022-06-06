@@ -26,6 +26,10 @@ Options:
 
                             # Default value "8080"
 
+        --webroot=webpath   # Specify where files are generated
+
+                            # Default value "./www"
+
         --binary=binarypath # Make a payload to execue binarypath on the victime computer
 
                             # Default value "\\\\windows\\\\system32\\\\calc"
