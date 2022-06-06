@@ -70,19 +70,23 @@ fn main() {
     let ip;
 
     if parse_args::get_flag_value("manual", &vec_flag) == None {
-        let opt_iface = parse_args::get_flag_value("server", &vec_flag);
-        let iface_string = match opt_iface {
-            Some(value) => value,
-            None => "lo".to_string(),
-        };
+        if parse_args::get_flag_value("server", &vec_flag).is_some() {
+            let opt_iface = parse_args::get_flag_value("server", &vec_flag);
+            let iface_string = match opt_iface {
+                Some(value) => value,
+                None => "lo".to_string(),
+            };
 
-        let iface = &iface_string[..];
-        let opt_local_ip = local_ip::get_iface_addr(iface);
-        if opt_local_ip.is_some() {
-            ip = local_ip::get_iface_addr(iface).unwrap();
+            let iface = &iface_string[..];
+            let opt_local_ip = local_ip::get_iface_addr(iface);
+            if opt_local_ip.is_some() {
+                ip = local_ip::get_iface_addr(iface).unwrap();
+            } else {
+                println!("Interface has no IP address.");
+                exit(1)
+            }
         } else {
-            println!("Interface has no IP address.");
-            exit(1)
+            ip = String::from("127.0.0.1").parse::<IpAddr>().unwrap();
         }
     } else {
         start_httpd = false;
