@@ -112,9 +112,7 @@ fn main() {
     };
 
     println!(
-        "Generating files 
-
-Configuration:
+        "Generating files for configuration:
         IP     = {}
         Port   = {}
         Binary = {}\n",
